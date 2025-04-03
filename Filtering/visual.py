@@ -8,17 +8,16 @@ def find_plate(image):
     squareKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 20))
 
     # perform a blackhat morphological operation
-    blackhat = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, kernel)
+    blackhat = cv2.morphologyEx(image, cv2.MORPH_BLACKHAT, kernel)
     
     cv2.imshow("Blackhat", blackhat)
     cv2.waitKey()
 
-    light = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, squareKernel)
+    light = cv2.morphologyEx(image, cv2.MORPH_CLOSE, squareKernel)
     light = cv2.threshold(light, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     
     cv2.imshow("light", light)
     cv2.waitKey()
-
 
     gradX = cv2.Sobel(blackhat, ddepth=cv2.CV_32F,
         dx=1, dy=0, ksize=-1)
@@ -63,37 +62,27 @@ def find_plate(image):
     return cnts
 
 
-def locate_license_plate(gray, candidates, minAR=4, maxAR=5):
+def locate_license_plate(image, candidates, minAR=4, maxAR=5):
     # initialize the license plate contour and ROI
     lpCnt = None
     roi = None
     # loop over the license plate candidate contours
     for c in candidates:
-        # compute the bounding box of the contour and then use
-        # the bounding box to derive the aspect ratio
         (x, y, w, h) = cv2.boundingRect(c)
         ar = w / float(h)
         print(ar)
     
         # check to see if the aspect ratio is rectangular
         if ar >= minAR and ar <= maxAR:
-            # store the license plate contour and extract the
-            # license plate from the grayscale image and then
-            # threshold it
             lpCnt = c
-            licensePlate = gray[y:y + h, x:x + w]
+            licensePlate = image[y:y + h, x:x + w]
             roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
 
-            # display any debugging information and then break
-            # from the loop early since we have found the license
-            # plate region
             cv2.imshow("License Plate", licensePlate)
             cv2.waitKey()
             cv2.imshow("ROI", roi)
             cv2.waitKey()
             break
-    # return a 2-tuple of the license plate ROI and the contour
-    # associated with it
     return (roi, lpCnt)
 
 
