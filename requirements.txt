@@ -1,0 +1,5 @@
+ultralytics
+scikit-image
+matplotlib
+numpy
+opencv-python
