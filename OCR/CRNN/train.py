@@ -16,8 +16,9 @@ class PlateDataset(Dataset):
         self.image_paths =glob(os.path.join(root_dir, '*.jpg')) + glob(os.path.join(root_dir, '*.png')) # glob(os.path.join(os.path.dirname(os.path.abspath(__file__)) + '/dataset_final/train/', '4CO78E.png'))#
         self.transform = transforms.Compose([
             transforms.ToPILImage(),
-            transforms.RandomRotation(10),
+            transforms.RandomRotation(5),
             transforms.RandomAffine(10),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2),
             transforms.Resize((32, 128)),
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,))
@@ -36,7 +37,14 @@ class PlateDataset(Dataset):
             label = label.split('_')[0]
 
         image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        image = clahe.apply(image)
+
         image = self.transform(image)
+
+        #cv2.imshow('image', image.permute(1, 2, 0).numpy())
+        #cv2.waitKey(0)
 
         label_encoded = torch.tensor(utils.encode_label(label), dtype=torch.long)
         return image, label_encoded, len(label_encoded)

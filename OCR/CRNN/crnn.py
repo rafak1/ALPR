@@ -5,7 +5,6 @@ class CRNN(nn.Module):
     def __init__(self, nh):
         super(CRNN, self).__init__()
 
-
         self.cnn = nn.Sequential(
             nn.Conv2d(1, 32, 3, 1, 1),
             nn.ReLU(True),
@@ -28,13 +27,13 @@ class CRNN(nn.Module):
         )
 
         self.rnn = nn.Sequential(
-            nn.LSTM(128, nh * 2, bidirectional=False),
+            nn.LSTM(128, nh, bidirectional=False),
             #GetLSTMOutput(),
             #nn.LSTM(nh * 2, nh, bidirectional=False)
         )
 
         nclass = len(utils.alphabet) + 1
-        self.embedding = nn.Linear(nh * 2, nclass)
+        self.embedding = nn.Linear(nh, nclass)
 
     def forward(self, x):
         #print(f"before {x.size()}")
