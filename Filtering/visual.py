@@ -47,6 +47,7 @@ def locate_license_plate(image, candidates, minAR=4, maxAR=5):
     lpCnt = None
     roi = None
     # loop over the license plate candidate contours
+    print("Candidates: ", len(candidates))
     for c in candidates:
         (x, y, w, h) = cv2.boundingRect(c)
         ar = w / float(h)
