@@ -59,9 +59,5 @@ def locate_license_plate(image, candidates, minAR=4, maxAR=5):
             licensePlate = image[y:y + h, x:x + w]
             roi = cv2.threshold(licensePlate, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
 
-            cv2.imshow("License Plate", licensePlate)
-            cv2.waitKey()
-            cv2.imshow("ROI", roi)
-            cv2.waitKey()
             break
     return (roi, lpCnt)

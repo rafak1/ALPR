@@ -3,3 +3,9 @@ scikit-image
 matplotlib
 numpy
 opencv-python
+torch
+imutils
+glob
+pytesseract
+torchvision
+tqdm

@@ -41,6 +41,10 @@ class PlateDataset(Dataset):
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         image = clahe.apply(image)
 
+        image = cv2.adaptiveThreshold(image, 255,
+                              cv2.ADAPTIVE_THRESH_MEAN_C,
+                              cv2.THRESH_BINARY_INV, 15, 10)
+
         image = self.transform(image)
 
         #cv2.imshow('image', image.permute(1, 2, 0).numpy())
