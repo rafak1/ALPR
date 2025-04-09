@@ -12,17 +12,25 @@ from tqdm import tqdm
 
 
 class PlateDataset(Dataset):
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, is_train=True):
         self.image_paths =glob(os.path.join(root_dir, '*.jpg')) + glob(os.path.join(root_dir, '*.png')) # glob(os.path.join(os.path.dirname(os.path.abspath(__file__)) + '/dataset_final/train/', '4CO78E.png'))#
-        self.transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.RandomRotation(5),
-            transforms.RandomAffine(10),
-            transforms.ColorJitter(brightness=0.2, contrast=0.2),
-            transforms.Resize((32, 128)),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5,), (0.5,))
-        ])
+        if is_train:
+            self.transform = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.RandomRotation(5),
+                transforms.RandomAffine(10),
+                transforms.ColorJitter(brightness=0.2, contrast=0.2),
+                transforms.Resize((32, 128)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5,), (0.5,))
+            ])
+        else:
+            self.transform = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize((32, 128)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5,), (0.5,))
+            ])
         print(len(self.image_paths))
 
     def __len__(self):
@@ -94,6 +102,8 @@ def test(model, test_loader, device):
     model.eval()
     total_correct = 0
     total_images = 0
+    actual_labels = []
+    predicted_labels = []
     with torch.no_grad():
         for images, org_labels, _ in tqdm(test_loader, desc="Testing"):
             images = images.to(device)
@@ -101,12 +111,14 @@ def test(model, test_loader, device):
             outputs = model(images)
             
             predicted_labels = utils.decode_output(outputs)
-            print(predicted_labels)
             actual_labels = [utils.decode_label(label) for label in org_labels]
-            print(actual_labels)
             correct = sum([1 if predicted == actual else 0 for predicted, actual in zip(predicted_labels, actual_labels)])
             total_correct += correct
             total_images += len(actual_labels)
+            actual_labels.extend(actual_labels)
+            predicted_labels.extend(predicted_labels)
 
+    print("Actual Labels: ", actual_labels)
+    print("Predicted Labels: ", predicted_labels)
     accuracy = total_correct / total_images
     print(f"Test Accuracy: {accuracy * 100:.2f}%")

@@ -12,8 +12,8 @@ if __name__ == "__main__":
     model = crnn.CRNN(nh=256).to(device)
     train.train(path, model, device, epochs=150, batch_size=5)
 
-    test_dataset = train.PlateDataset(path + '/test')
-    test_loader = DataLoader(test_dataset, batch_size=5, shuffle=False, collate_fn=train.collate_fn)
+    test_dataset = train.PlateDataset(path + '/test', is_train=False)
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, collate_fn=train.collate_fn)
 
     # save the model
     torch.save(model.state_dict(), 'crnn_model.pth')
